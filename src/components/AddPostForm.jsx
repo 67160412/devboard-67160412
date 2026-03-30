@@ -6,12 +6,17 @@ function AddPostForm({ onAddPost }) {
 
   function handleSubmit(e) {
     e.preventDefault();
-    if (!title.trim() || !body.trim()) return; // ป้องกันส่งว่าง
+    if (!title.trim() || !body.trim()) return;
 
     onAddPost({ title, body });
-    setTitle(""); // เคลียร์ form
+    setTitle("");
     setBody("");
   }
+
+  // คำนวณตัวอักษรที่เหลือ
+  const charsLeft = 100 - title.length;
+  // ถ้าเหลือน้อยกว่าหรือเท่ากับ 10 ตัวอักษร ให้ใช้สีแดง
+  const counterColor = charsLeft <= 10 ? "#e53e3e" : "#718096";
 
   return (
     <form
@@ -32,17 +37,30 @@ function AddPostForm({ onAddPost }) {
         type="text"
         placeholder="หัวข้อโพสต์"
         value={title}
+        maxLength={100} // บังคับไม่ให้พิมพ์เกิน 100 ตัว
         onChange={(e) => setTitle(e.target.value)}
         style={{
           width: "100%",
           padding: "0.5rem",
-          marginBottom: "0.5rem",
+          marginBottom: "0.25rem", // ลดระยะห่างลงนิดหน่อยเพื่อให้ชิดตัวนับ
           border: "1px solid #cbd5e0",
           borderRadius: "4px",
           fontSize: "1rem",
           boxSizing: "border-box",
         }}
       />
+
+      {/* 🌟 Challenge 1: ตัวนับตัวอักษร */}
+      <div
+        style={{
+          textAlign: "right",
+          fontSize: "0.8rem",
+          color: counterColor,
+          marginBottom: "0.5rem",
+        }}
+      >
+        {title.length}/100
+      </div>
 
       <textarea
         placeholder="เนื้อหาโพสต์"

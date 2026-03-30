@@ -26,6 +26,7 @@ function UserCard({ name, email }) {
           color: "white",
           borderRadius: "50%",
           display: "flex",
+
           alignItems: "center",
           justifyContent: "center",
           fontWeight: "bold",

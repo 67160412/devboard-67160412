@@ -1,8 +1,11 @@
+import { useState } from "react";
 import Navbar from "./components/Navbar";
 import PostList from "./components/PostList";
 import UserCard from "./components/UserCard";
+import AddPostForm from "./components/AddPostForm"; // Import ฟอร์มใหม่เข้ามา
 
-const POSTS = [
+// ข้อมูลตั้งต้น
+const INITIAL_POSTS = [
   {
     id: 1,
     title: "React คืออะไร?",
@@ -32,9 +35,38 @@ const USERS = [
 ];
 
 function App() {
+  // สร้าง State เก็บรายการโพสต์ทั้งหมด (ตอนแรกให้ใช้ข้อมูลจาก INITIAL_POSTS)
+  const [posts, setPosts] = useState(INITIAL_POSTS);
+
+  // สร้าง State เก็บ ID ของโพสต์ที่ถูกกดถูกใจ (เริ่มต้นเป็น Array ว่าง)
+  const [favorites, setFavorites] = useState([]);
+
+  // ฟังก์ชัน: จัดการเมื่อมีคนกดถูกใจ/ยกเลิก
+  function handleToggleFavorite(postId) {
+    setFavorites(
+      (prev) =>
+        prev.includes(postId)
+          ? prev.filter((id) => id !== postId) // ถ้ามีอยู่แล้ว -> ให้ลบออก (ยกเลิกถูกใจ)
+          : [...prev, postId], // ถ้ายังไม่มี -> ให้เพิ่มเข้าไป (กดถูกใจ)
+    );
+  }
+
+  // ฟังก์ชัน: จัดการเมื่อมีคนกดปุ่ม "โพสต์" ในฟอร์ม
+  function handleAddPost({ title, body }) {
+    const newPost = {
+      id: Date.now(), // ใช้เวลาปัจจุบันมาทำเป็น ID ชั่วคราวไปก่อน
+      title,
+      body,
+    };
+    // เอาโพสต์ใหม่ไปต่อหน้าโพสต์เดิม (โพสต์ใหม่สุดจะอยู่บนสุด)
+    setPosts((prev) => [newPost, ...prev]);
+  }
+
   return (
     <div>
-      <Navbar />
+      {/* ส่งจำนวนยอดถูกใจไปแสดงบน Navbar */}
+      <Navbar favoriteCount={favorites.length} />
+
       <div
         style={{
           maxWidth: "900px",
@@ -47,7 +79,14 @@ function App() {
       >
         {/* คอลัมน์ซ้าย: โพสต์ */}
         <div>
-          <PostList posts={POSTS} />
+          {/* เรียกใช้งานฟอร์มเพิ่มโพสต์ */}
+          <AddPostForm onAddPost={handleAddPost} />
+
+          <PostList
+            posts={posts}
+            favorites={favorites}
+            onToggleFavorite={handleToggleFavorite}
+          />
         </div>
 
         {/* คอลัมน์ขวา: สมาชิก */}

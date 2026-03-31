@@ -1,57 +1,28 @@
-import { useState } from "react";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { FavoritesProvider } from "./context/FavoritesContext";
 import Navbar from "./components/Navbar";
-import PostList from "./components/PostList";
-import UserList from "./components/UserList";
-import AddPostForm from "./components/AddPostForm";
+import HomePage from "./pages/HomePage";
+import PostDetailPage from "./pages/PostDetailPage";
+import ProfilePage from "./pages/ProfilePage";
+import FavoritesPage from "./pages/FavoritesPage";
 
 function App() {
-  const [favorites, setFavorites] = useState(() => {
-    const savedFavorites = localStorage.getItem("favorites");
-    return savedFavorites ? JSON.parse(savedFavorites) : [];
-  });
-
-  function handleToggleFavorite(postId) {
-    setFavorites((prev) => {
-      const newFavorites = prev.includes(postId)
-        ? prev.filter((id) => id !== postId)
-        : [...prev, postId];
-
-      localStorage.setItem("favorites", JSON.stringify(newFavorites));
-
-      return newFavorites;
-    });
-  }
-
   return (
-    <div>
-      <Navbar favoriteCount={favorites.length} />
+    // 🌟 1. ครอบทุกอย่างด้วย FavoritesProvider เพื่อให้ทุกหน้าใช้ Context ได้
+    <FavoritesProvider>
+      // 🌟 2. ครอบด้วย BrowserRouter เพื่อเปิดใช้งานระบบเปลี่ยนหน้า (Routing)
+      <BrowserRouter>
+        <Navbar />
 
-      <div
-        style={{
-          maxWidth: "900px",
-          margin: "2rem auto",
-          padding: "0 1rem",
-          display: "grid",
-          gridTemplateColumns: "2fr 1fr",
-          gap: "2rem",
-        }}
-      >
-        {/* คอลัมน์ซ้าย */}
-        <div>
-          <AddPostForm onAddPost={() => {}} />
-
-          <PostList
-            favorites={favorites}
-            onToggleFavorite={handleToggleFavorite}
-          />
-        </div>
-
-        {/* คอลัมน์ขวา */}
-        <div>
-          <UserList />
-        </div>
-      </div>
-    </div>
+        {/* 🌟 3. Routes คือตัวกำหนดว่า URL ไหน ให้แสดงผลหน้าอะไร */}
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/posts/:id" element={<PostDetailPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/favorites" element={<FavoritesPage />} />
+        </Routes>
+      </BrowserRouter>
+    </FavoritesProvider>
   );
 }
 

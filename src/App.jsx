@@ -14,12 +14,12 @@ function App() {
       <BrowserRouter>
         <Navbar />
         <Routes>
+          <Route path="/home" element={<HomePage />} />
           <Route path="/" element={<HomePage />} />
           <Route path="/posts/:id" element={<PostDetailPage />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/favorites" element={<FavoritesPage />} />
 
-          {/* 🌟 2. เพิ่ม Route สำหรับหน้าค้นหา */}
           <Route path="/search" element={<SearchPage />} />
 
           <Route path="*" element={<NotFoundPage />} />

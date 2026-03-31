@@ -1,40 +1,26 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import PostCard from "./PostCard";
 import PostCount from "./PostCount";
 import LoadingSpinner from "./LoadingSpinner";
+import useFetch from "../hooks/useFetch"; // 🌟 Import Custom Hook
 
 function PostList({ favorites, onToggleFavorite }) {
-  const [posts, setPosts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  // 🌟 Challenge 3: ดึงข้อมูล โหลด และ Error ผ่าน Hook
+  const {
+    data: allPosts,
+    loading,
+    error,
+    refetch: fetchPosts, // ดึงฟังก์ชัน refetch มาทำปุ่มโหลดใหม่
+  } = useFetch("https://jsonplaceholder.typicode.com/posts");
 
   const [search, setSearch] = useState("");
   const [sortOrder, setSortOrder] = useState("desc");
-
-  // 🌟 Challenge 2: State สำหรับเก็บเลขหน้าปัจจุบัน
   const [currentPage, setCurrentPage] = useState(1);
-  const postsPerPage = 10; // กำหนดให้แสดงหน้าละ 10 รายการ
+  const postsPerPage = 10;
 
-  async function fetchPosts() {
-    try {
-      setLoading(true);
-      setError(null);
-      const res = await fetch("https://jsonplaceholder.typicode.com/posts");
-      if (!res.ok) throw new Error("ดึงข้อมูลไม่สำเร็จ");
-      const data = await res.json();
-      setPosts(data.slice(0, 20)); // ดึงมา 20 รายการ (จะมีทั้งหมด 2 หน้า)
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  }
+  // ตัดข้อมูล 20 รายการแรก ตามที่โจทย์ Task 3 ต้องการ
+  const posts = allPosts.slice(0, 20);
 
-  useEffect(() => {
-    fetchPosts();
-  }, []);
-
-  // 🌟 ทุกครั้งที่มีการค้นหา ให้กลับไปเริ่มนับหน้า 1 ใหม่
   const handleSearchChange = (e) => {
     setSearch(e.target.value);
     setCurrentPage(1);
@@ -52,9 +38,8 @@ function PostList({ favorites, onToggleFavorite }) {
     }
   });
 
-  // 🌟 Challenge 2: คำนวณตำแหน่งการตัดแบ่งข้อมูล (Pagination Logic)
-  const indexOfLastPost = currentPage * postsPerPage; // เช่น หน้า 1 คือ 10, หน้า 2 คือ 20
-  const indexOfFirstPost = indexOfLastPost - postsPerPage; // เช่น หน้า 1 คือ 0, หน้า 2 คือ 10
+  const indexOfLastPost = currentPage * postsPerPage;
+  const indexOfFirstPost = indexOfLastPost - postsPerPage;
   const currentPosts = sortedAndFiltered.slice(
     indexOfFirstPost,
     indexOfLastPost,
@@ -76,6 +61,7 @@ function PostList({ favorites, onToggleFavorite }) {
       >
         <h2 style={{ color: "#2d3748", margin: 0 }}>โพสต์ล่าสุด</h2>
         <div style={{ display: "flex", gap: "0.5rem" }}>
+          {/* เรียกใช้ fetchPosts จาก Hook */}
           <button
             onClick={fetchPosts}
             style={{
@@ -92,7 +78,7 @@ function PostList({ favorites, onToggleFavorite }) {
           <button
             onClick={() => {
               setSortOrder(sortOrder === "desc" ? "asc" : "desc");
-              setCurrentPage(1); // Reset หน้าเมื่อเปลี่ยนการเรียง
+              setCurrentPage(1);
             }}
             style={{
               background: "#edf2f7",
@@ -144,13 +130,16 @@ function PostList({ favorites, onToggleFavorite }) {
         <>
           {currentPosts.length === 0 && (
             <p
-              style={{ color: "#718096", textAlign: "center", padding: "2rem" }}
+              style={{
+                color: "#718096",
+                textAlign: "center",
+                padding: "2rem",
+              }}
             >
               ไม่พบโพสต์ที่ค้นหา
             </p>
           )}
 
-          {/* 🌟 เปลี่ยนมาใช้ currentPosts แทน sortedAndFiltered เพื่อแสดงแค่หน้าละ 10 รายการ */}
           {currentPosts.map((post) => (
             <PostCard
               key={post.id}
@@ -160,7 +149,6 @@ function PostList({ favorites, onToggleFavorite }) {
             />
           ))}
 
-          {/* 🌟 Challenge 2: ส่วนควบคุมปุ่มเปลี่ยนหน้า (Pagination UI) */}
           {totalPages > 1 && (
             <div
               style={{

@@ -1,14 +1,11 @@
 import { useState } from "react";
-import { Link } from "react-router-dom"; // ⚠️ อิมพอร์ต Link มาใช้เปลี่ยนหน้า
-import { useFavorites } from "../context/FavoritesContext"; // ⚠️ อิมพอร์ต Context
+import { Link } from "react-router-dom";
+import { useFavorites } from "../context/FavoritesContext";
 import CommentList from "./CommentList";
 
-// ⚠️ ไม่ต้องรับ props isFavorite, onToggleFavorite แล้ว (รับแค่ post อย่างเดียว)
 function PostCard({ post }) {
-  // ดึงข้อมูลการกดถูกใจมาจาก Context โดยตรง!
   const { favorites, toggleFavorite } = useFavorites();
   const isFavorite = favorites.includes(post.id);
-
   const [showComments, setShowComments] = useState(false);
 
   return (
@@ -22,7 +19,6 @@ function PostCard({ post }) {
       }}
     >
       <h3 style={{ margin: "0 0 0.5rem" }}>
-        {/* 🌟 จุดสำคัญ: ครอบชื่อโพสต์ด้วย Link เพื่อเปลี่ยนหน้าไปที่ /posts/เลขID */}
         <Link
           to={`/posts/${post.id}`}
           style={{ color: "#1e40af", textDecoration: "none" }}
@@ -35,9 +31,8 @@ function PostCard({ post }) {
       </p>
 
       <div style={{ display: "flex", gap: "0.5rem" }}>
-        {/* ปุ่มถูกใจ */}
         <button
-          onClick={() => toggleFavorite(post.id)} // ⚠️ เรียกใช้ฟังก์ชันจาก Context
+          onClick={() => toggleFavorite(post.id)}
           style={{
             background: "none",
             border: "none",
@@ -51,7 +46,6 @@ function PostCard({ post }) {
           {isFavorite ? "❤️ ถูกใจแล้ว" : "🤍 ถูกใจ"}
         </button>
 
-        {/* ปุ่มดูความคิดเห็น */}
         <button
           onClick={() => setShowComments((prev) => !prev)}
           style={{

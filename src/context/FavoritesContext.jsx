@@ -23,6 +23,8 @@ export function FavoritesProvider({ children }) {
 }
 
 // 3. Custom hook สำหรับใช้งาน context ง่าย ๆ
+
+// eslint-disable-next-line react-refresh/only-export-components
 export function useFavorites() {
   return useContext(FavoritesContext);
 }

@@ -1,28 +1,68 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import PostCard from "./PostCard";
 import PostCount from "./PostCount";
+import LoadingSpinner from "./LoadingSpinner"; // อย่าลืมสร้างไฟล์นี้นะครับ (Activity 1)
 
-function PostList({ posts, favorites, onToggleFavorite }) {
+function PostList({ favorites, onToggleFavorite }) {
+  // 1. State สำหรับเก็บข้อมูลจาก API, สถานะโหลด, และ Error
+  const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // 2. State เดิมของระบบค้นหาและเรียงลำดับ (Challenge 2)
   const [search, setSearch] = useState("");
-
-  // 🌟 Challenge 2: สร้าง State สำหรับเก็บรูปแบบการเรียง (desc = ใหม่สุดก่อน, asc = เก่าสุดก่อน)
   const [sortOrder, setSortOrder] = useState("desc");
 
-  // กรองโพสต์ตามคำค้นหาก่อน
+  // 3. useEffect ดึงข้อมูลจาก API ทันทีที่โหลด Component นี้
+  useEffect(() => {
+    async function fetchPosts() {
+      try {
+        setLoading(true);
+        setError(null);
+        const res = await fetch("https://jsonplaceholder.typicode.com/posts");
+        if (!res.ok) throw new Error("ดึงข้อมูลไม่สำเร็จ");
+        const data = await res.json();
+        setPosts(data.slice(0, 20)); // เอาแค่ 20 รายการแรกตามโจทย์
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchPosts();
+  }, []); // [] หมายถึงให้ทำแค่ครั้งเดียวตอนโหลดหน้าเว็บ
+
+  // 4. กรองโพสต์และเรียงลำดับ (เหมือนเดิมที่คุณทำไว้)
   const filtered = posts.filter((post) =>
     post.title.toLowerCase().includes(search.toLowerCase()),
   );
 
-  // 🌟 Challenge 2: นำโพสต์ที่กรองแล้ว มาเรียงลำดับ (Sort)
-  // ใช้ [...filtered] เพื่อก๊อปปี้ Array ออกมาก่อน sort จะได้ไม่ไปกระทบข้อมูลต้นฉบับ
   const sortedAndFiltered = [...filtered].sort((a, b) => {
-    // โพสต์ใหม่สุดจะมี id เยอะสุด (เพราะเราใช้ Date.now() สร้าง id ตอนเพิ่มโพสต์)
     if (sortOrder === "desc") {
-      return b.id - a.id; // มากไปน้อย (ใหม่สุดก่อน)
+      return b.id - a.id;
     } else {
-      return a.id - b.id; // น้อยไปมาก (เก่าสุดก่อน)
+      return a.id - b.id;
     }
   });
+
+  // 5. แสดงหน้าจอ Loading ตอนที่กำลังดึงข้อมูล
+  if (loading) return <LoadingSpinner />;
+
+  // 6. แสดงหน้าจอ Error ถ้าดึงข้อมูลพัง
+  if (error)
+    return (
+      <div
+        style={{
+          padding: "1.5rem",
+          background: "#fff5f5",
+          border: "1px solid #fc8181",
+          borderRadius: "8px",
+          color: "#c53030",
+        }}
+      >
+        เกิดข้อผิดพลาด: {error}
+      </div>
+    );
 
   return (
     <div>
@@ -38,7 +78,6 @@ function PostList({ posts, favorites, onToggleFavorite }) {
       >
         <h2 style={{ color: "#2d3748", margin: 0 }}>โพสต์ล่าสุด</h2>
 
-        {/* 🌟 Challenge 2: ปุ่มกดสลับการเรียงลำดับ */}
         <button
           onClick={() => setSortOrder(sortOrder === "desc" ? "asc" : "desc")}
           style={{
@@ -78,12 +117,10 @@ function PostList({ posts, favorites, onToggleFavorite }) {
         </p>
       )}
 
-      {/* เปลี่ยนมาใช้ตัวแปร sortedAndFiltered ที่ผ่านการเรียงลำดับแล้วมาแสดงผล */}
       {sortedAndFiltered.map((post) => (
         <PostCard
           key={post.id}
-          title={post.title}
-          body={post.body}
+          post={post} // ⚠️ อัปเดตใหม่ตาม Task 3: ส่งข้อมูลไปทั้งก้อน post={post}
           isFavorite={favorites.includes(post.id)}
           onToggleFavorite={() => onToggleFavorite(post.id)}
         />

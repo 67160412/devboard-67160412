@@ -2,15 +2,15 @@ import { useState } from "react";
 import PostCard from "./PostCard";
 import PostCount from "./PostCount";
 import LoadingSpinner from "./LoadingSpinner";
-import useFetch from "../hooks/useFetch"; // 🌟 Import Custom Hook
+import useFetch from "../hooks/useFetch";
 
-function PostList({ favorites, onToggleFavorite }) {
-  // 🌟 Challenge 3: ดึงข้อมูล โหลด และ Error ผ่าน Hook
+// 🌟 1. ลบ { favorites, onToggleFavorite } ออกจากวงเล็บ เพราะเราไม่ได้รับผ่าน props แล้ว
+function PostList() {
   const {
     data: allPosts,
     loading,
     error,
-    refetch: fetchPosts, // ดึงฟังก์ชัน refetch มาทำปุ่มโหลดใหม่
+    refetch: fetchPosts,
   } = useFetch("https://jsonplaceholder.typicode.com/posts");
 
   const [search, setSearch] = useState("");
@@ -18,7 +18,6 @@ function PostList({ favorites, onToggleFavorite }) {
   const [currentPage, setCurrentPage] = useState(1);
   const postsPerPage = 10;
 
-  // ตัดข้อมูล 20 รายการแรก ตามที่โจทย์ Task 3 ต้องการ
   const posts = allPosts.slice(0, 20);
 
   const handleSearchChange = (e) => {
@@ -61,7 +60,6 @@ function PostList({ favorites, onToggleFavorite }) {
       >
         <h2 style={{ color: "#2d3748", margin: 0 }}>โพสต์ล่าสุด</h2>
         <div style={{ display: "flex", gap: "0.5rem" }}>
-          {/* เรียกใช้ fetchPosts จาก Hook */}
           <button
             onClick={fetchPosts}
             style={{
@@ -141,12 +139,7 @@ function PostList({ favorites, onToggleFavorite }) {
           )}
 
           {currentPosts.map((post) => (
-            <PostCard
-              key={post.id}
-              post={post}
-              isFavorite={favorites.includes(post.id)}
-              onToggleFavorite={() => onToggleFavorite(post.id)}
-            />
+            <PostCard key={post.id} post={post} />
           ))}
 
           {totalPages > 1 && (

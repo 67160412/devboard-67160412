@@ -62,7 +62,7 @@ function PostList() {
           <button
             onClick={fetchPosts}
             style={{
-              background: "white",
+              background: "#154575",
               border: "1px solid #798088",
               padding: "0.25rem 0.75rem",
               borderRadius: "4px",

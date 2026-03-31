@@ -4,7 +4,6 @@ import PostCount from "./PostCount";
 import LoadingSpinner from "./LoadingSpinner";
 import useFetch from "../hooks/useFetch";
 
-// 🌟 1. ลบ { favorites, onToggleFavorite } ออกจากวงเล็บ เพราะเราไม่ได้รับผ่าน props แล้ว
 function PostList() {
   const {
     data: allPosts,
@@ -79,7 +78,7 @@ function PostList() {
               setCurrentPage(1);
             }}
             style={{
-              background: "#edf2f7",
+              background: "#154575",
               border: "1px solid #798088",
               padding: "0.25rem 0.75rem",
               borderRadius: "4px",

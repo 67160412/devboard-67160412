@@ -1,11 +1,20 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
 
-// 1. สร้าง context object
 const FavoritesContext = createContext();
 
-// 2. Provider component — ครอบ App ทั้งหมด
 export function FavoritesProvider({ children }) {
-  const [favorites, setFavorites] = useState([]);
+  // 🌟 Challenge 3: ตอนเริ่มต้น ให้ไปแอบดูใน localStorage ก่อนว่ามีของเดิมไหม
+  const [favorites, setFavorites] = useState(() => {
+    const savedFavorites = localStorage.getItem("favorites");
+    // ถ้ามีให้แปลงกลับเป็น Array ถ้าไม่มีให้ใช้ Array ว่าง []
+    return savedFavorites ? JSON.parse(savedFavorites) : [];
+  });
+
+  // 🌟 Challenge 3: ใช้ useEffect เพื่อคอยเฝ้าดูว่าถ้า favorites เปลี่ยนแปลงเมื่อไหร่
+  // ให้เอาค่าใหม่ไปเซฟทับใน localStorage อัตโนมัติทันที!
+  useEffect(() => {
+    localStorage.setItem("favorites", JSON.stringify(favorites));
+  }, [favorites]);
 
   function toggleFavorite(postId) {
     setFavorites((prev) =>
@@ -21,8 +30,6 @@ export function FavoritesProvider({ children }) {
     </FavoritesContext.Provider>
   );
 }
-
-// 3. Custom hook สำหรับใช้งาน context ง่าย ๆ
 
 // eslint-disable-next-line react-refresh/only-export-components
 export function useFavorites() {

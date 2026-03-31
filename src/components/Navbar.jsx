@@ -1,8 +1,20 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom"; // 🌟 นำ useNavigate มาใช้เปลี่ยนหน้า
 import { useFavorites } from "../context/FavoritesContext";
+import { useState } from "react";
 
 function Navbar() {
   const { favorites } = useFavorites();
+  const [searchInput, setSearchInput] = useState("");
+  const navigate = useNavigate();
+
+  // 🌟 เมื่อกด Enter ในช่องค้นหา ให้เปลี่ยนหน้าไปที่ /search?q=คำค้นหา
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (searchInput.trim()) {
+      navigate(`/search?q=${searchInput}`);
+      setSearchInput(""); // ล้างช่องค้นหาหลังกด Enter
+    }
+  };
 
   return (
     <nav
@@ -20,6 +32,36 @@ function Navbar() {
       </Link>
 
       <div style={{ display: "flex", gap: "1.5rem", alignItems: "center" }}>
+        {/* 🌟 ฟอร์มช่องค้นหาใน Navbar */}
+        <form
+          onSubmit={handleSearch}
+          style={{ display: "flex", gap: "0.25rem" }}
+        >
+          <input
+            type="text"
+            placeholder="ค้นหาโพสต์..."
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+            style={{
+              padding: "0.25rem 0.5rem",
+              borderRadius: "4px",
+              border: "none",
+              outline: "none",
+            }}
+          />
+          <button
+            type="submit"
+            style={{
+              cursor: "pointer",
+              border: "none",
+              background: "white",
+              borderRadius: "4px",
+            }}
+          >
+            🔍
+          </button>
+        </form>
+
         <Link to="/" style={{ color: "white", textDecoration: "none" }}>
           หน้าหลัก
         </Link>

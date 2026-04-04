@@ -5,8 +5,8 @@ import HomePage from "./pages/HomePage";
 import PostDetailPage from "./pages/PostDetailPage";
 import ProfilePage from "./pages/ProfilePage";
 import FavoritesPage from "./pages/FavoritesPage";
+// 🌟 4.1 Challenge: นำเข้าหน้า 404
 import NotFoundPage from "./pages/NotFoundPage";
-import SearchPage from "./pages/SearchPage"; // 🌟 1. Import หน้าค้นหา
 
 function App() {
   return (
@@ -14,14 +14,12 @@ function App() {
       <BrowserRouter>
         <Navbar />
         <Routes>
-          <Route path="/home" element={<HomePage />} />
           <Route path="/" element={<HomePage />} />
           <Route path="/posts/:id" element={<PostDetailPage />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/favorites" element={<FavoritesPage />} />
 
-          <Route path="/search" element={<SearchPage />} />
-
+          {/* 🌟 4.1 Challenge: ใช้ path="*" เพื่อดักจับ URL ที่ไม่ตรงกับข้างบนเลย */}
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </BrowserRouter>

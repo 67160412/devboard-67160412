@@ -1,17 +1,11 @@
 function UserCard({ name, email }) {
-  // ดึงตัวอักษรแรกมาทำ avatar
-  const initials = name
-    .split(" ")
-    .map((n) => n[0])
-    .join("");
+  const initials = name.charAt(0).toUpperCase();
 
-  // Logic สุ่มสี: แปลงตัวอักษรแรกเป็นรหัสตัวเลข แล้วหารเอาเศษด้วย 3
+  // Logic สุ่มสี: แปลงตัวอักษรแรกเป็นรหัสตัวเลข แล้วหารเอาเศษด้วยชุดสีที่มี
   const charCode = name.charCodeAt(0);
-  const colorIndex = charCode % 3;
+  const colors = ["#1e40af", "#047857", "#6b21a8", "#b91c1c", "#d97706"];
+  const avatarColor = colors[charCode % colors.length];
 
-  // กำหนดชุดสี: 0=น้ำเงิน, 1=เขียว, 2=ม่วง
-  const colors = ["#1e40af", "#047857", "#6b21a8"];
-  const avatarColor = colors[colorIndex];
   return (
     <div
       style={{
@@ -29,15 +23,14 @@ function UserCard({ name, email }) {
         style={{
           width: "40px",
           height: "40px",
-          background: avatarColor, // <--- เปลี่ยนตรงนี้
+          background: avatarColor, // 🌟 ใช้สีที่คำนวณได้
           color: "white",
           borderRadius: "50%",
           display: "flex",
-
           alignItems: "center",
           justifyContent: "center",
           fontWeight: "bold",
-          fontSize: "0.9rem",
+          fontSize: "1rem",
         }}
       >
         {initials}

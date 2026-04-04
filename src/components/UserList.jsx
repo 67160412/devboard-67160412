@@ -1,32 +1,45 @@
+import { useState, useEffect } from "react";
 import UserCard from "./UserCard";
 import LoadingSpinner from "./LoadingSpinner";
-import useFetch from "../hooks/useFetch"; // 🌟 Import Custom Hook เข้ามา
 
 function UserList() {
-  // 🌟 Challenge 3: โค้ดเหลือสั้นแค่นี้! เรียกใช้ useFetch บรรทัดเดียวจบ
-  const {
-    data: users,
-    loading,
-    error,
-  } = useFetch("https://jsonplaceholder.typicode.com/users");
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // ใช้ useEffect และ fetch ดึงข้อมูลตรงๆ โดยไม่พึ่ง useFetch
+  useEffect(() => {
+    fetch("https://jsonplaceholder.typicode.com/users")
+      .then((res) => res.json())
+      .then((data) => {
+        setUsers(data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error("เกิดข้อผิดพลาดในการดึงข้อมูลสมาชิก:", err);
+        setLoading(false);
+      });
+  }, []);
 
   if (loading) return <LoadingSpinner />;
-  if (error) return <p style={{ color: "#c53030" }}>เกิดข้อผิดพลาด: {error}</p>;
 
   return (
-    <div>
+    <div style={{ marginTop: "2rem" }}>
       <h2
         style={{
-          color: "#2d3748",
           borderBottom: "2px solid #1e40af",
           paddingBottom: "0.5rem",
+          marginBottom: "1rem",
+          color: "#2d3748",
         }}
       >
-        สมาชิก
+        รายชื่อสมาชิก
       </h2>
-      {users.map((user) => (
-        <UserCard key={user.id} name={user.name} email={user.email} />
-      ))}
+
+      <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+        {users.map((user) => (
+          <UserCard key={user.id} name={user.name} email={user.email} />
+        ))}
+      </div>
     </div>
   );
 }

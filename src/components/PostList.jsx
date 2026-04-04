@@ -1,34 +1,45 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import PostCard from "./PostCard";
 import PostCount from "./PostCount";
-import LoadingSpinner from "./LoadingSpinner";
-import useFetch from "../hooks/useFetch";
+import PostSkeleton from "./PostSkeleton";
 
 function PostList() {
-  const {
-    data: allPosts,
-    loading,
-    error,
-    refetch: fetchPosts,
-  } = useFetch("https://jsonplaceholder.typicode.com/posts");
+  const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const [search, setSearch] = useState("");
   const [sortOrder, setSortOrder] = useState("desc");
-  const [currentPage, setCurrentPage] = useState(1);
-  const postsPerPage = 10;
 
-  const posts = allPosts.slice(0, 20);
-
-  const handleSearchChange = (e) => {
-    setSearch(e.target.value);
-    setCurrentPage(1);
+  // 🌟 ฟังก์ชันนี้ทำหน้าที่ดึง API ล้วนๆ (เปลี่ยน State เฉพาะตอนได้ข้อมูลกลับมาแล้ว ซึ่งทำได้ปกติ)
+  const fetchPosts = () => {
+    fetch("https://jsonplaceholder.typicode.com/posts")
+      .then((res) => {
+        if (!res.ok) throw new Error("ดึงข้อมูลไม่สำเร็จ");
+        return res.json();
+      })
+      .then((data) => {
+        setPosts(data.slice(0, 20));
+        setLoading(false);
+      })
+      .catch((err) => {
+        setError(err.message);
+        setLoading(false);
+      });
   };
 
-  const filtered = posts.filter((post) =>
-    post.title.toLowerCase().includes(search.toLowerCase()),
-  );
+  // โหลดครั้งแรกตอนเปิดเว็บ (ไม่มีการตั้งค่า State ซ้ำซ้อนให้ Linter บ่นแล้ว)
+  useEffect(() => {
+    fetchPosts();
+  }, []);
 
-  const sortedAndFiltered = [...filtered].sort((a, b) => {
+  // 🌟 ฟังก์ชันใหม่สำหรับ "ปุ่มกด" โดยเฉพาะ (การเปลี่ยน State ทันทีใน Event เป็นสิ่งที่ถูกต้องตามหลัก React)
+  const handleManualRefresh = () => {
+    setLoading(true); // โชว์ Skeleton หน้าโหลด
+    setError(null); // เคลียร์ Error เก่า
+    fetchPosts(); // สั่งดึงข้อมูลใหม่
+  };
+
+  const sortedPosts = [...posts].sort((a, b) => {
     if (sortOrder === "desc") {
       return b.id - a.id;
     } else {
@@ -36,14 +47,13 @@ function PostList() {
     }
   });
 
-  const indexOfLastPost = currentPage * postsPerPage;
-  const indexOfFirstPost = indexOfLastPost - postsPerPage;
-  const currentPosts = sortedAndFiltered.slice(
-    indexOfFirstPost,
-    indexOfLastPost,
-  );
-
-  const totalPages = Math.ceil(sortedAndFiltered.length / postsPerPage);
+  if (error) {
+    return (
+      <div style={{ padding: "1rem", background: "#fff5f5", color: "#c53030" }}>
+        เกิดข้อผิดพลาด: {error}
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -57,33 +67,36 @@ function PostList() {
           marginBottom: "1rem",
         }}
       >
-        <h2 style={{ color: "#2d3748", margin: 0 }}>โพสต์ล่าสุด</h2>
+        <h2 style={{ margin: 0, color: "#2d3748" }}>โพสต์ล่าสุด</h2>
+
         <div style={{ display: "flex", gap: "0.5rem" }}>
+          {/* 🌟 3.1 Challenge: เปลี่ยนมาเรียกใช้ฟังก์ชัน handleManualRefresh แทน */}
           <button
-            onClick={fetchPosts}
+            onClick={handleManualRefresh}
             style={{
-              background: "#154575",
-              border: "1px solid #798088",
+              background: "#ebf8ff",
+              border: "1px solid #90cdf4",
               padding: "0.25rem 0.75rem",
               borderRadius: "4px",
               cursor: "pointer",
               fontSize: "0.9rem",
+              color: "#2b6cb0",
+              fontWeight: "bold",
             }}
           >
             🔄 โหลดใหม่
           </button>
+
           <button
-            onClick={() => {
-              setSortOrder(sortOrder === "desc" ? "asc" : "desc");
-              setCurrentPage(1);
-            }}
+            onClick={() => setSortOrder(sortOrder === "desc" ? "asc" : "desc")}
             style={{
-              background: "#154575",
-              border: "1px solid #798088",
+              background: "#f7fafc",
+              border: "1px solid #cbd5e0",
               padding: "0.25rem 0.75rem",
               borderRadius: "4px",
               cursor: "pointer",
               fontSize: "0.9rem",
+              color: "#4a5568",
             }}
           >
             {sortOrder === "desc" ? "🔽 ใหม่สุดก่อน" : "🔼 เก่าสุดก่อน"}
@@ -91,102 +104,16 @@ function PostList() {
         </div>
       </div>
 
-      <PostCount count={sortedAndFiltered.length} />
-
-      <input
-        type="text"
-        placeholder="ค้นหาโพสต์..."
-        value={search}
-        onChange={handleSearchChange}
-        style={{
-          width: "100%",
-          padding: "0.5rem 0.75rem",
-          border: "1px solid #cbd5e0",
-          borderRadius: "6px",
-          fontSize: "1rem",
-          marginBottom: "1rem",
-          boxSizing: "border-box",
-        }}
-      />
+      {!loading && <PostCount count={posts.length} />}
 
       {loading ? (
-        <LoadingSpinner />
-      ) : error ? (
-        <div
-          style={{
-            padding: "1.5rem",
-            background: "#fff5f5",
-            border: "1px solid #fc8181",
-            borderRadius: "8px",
-            color: "#c53030",
-          }}
-        >
-          เกิดข้อผิดพลาด: {error}
-        </div>
-      ) : (
         <>
-          {currentPosts.length === 0 && (
-            <p
-              style={{
-                color: "#718096",
-                textAlign: "center",
-                padding: "2rem",
-              }}
-            >
-              ไม่พบโพสต์ที่ค้นหา
-            </p>
-          )}
-
-          {currentPosts.map((post) => (
-            <PostCard key={post.id} post={post} />
-          ))}
-
-          {totalPages > 1 && (
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                gap: "1rem",
-                marginTop: "1.5rem",
-                padding: "1rem 0",
-              }}
-            >
-              <button
-                disabled={currentPage === 1}
-                onClick={() => setCurrentPage((prev) => prev - 1)}
-                style={{
-                  padding: "0.5rem 1rem",
-                  borderRadius: "4px",
-                  border: "1px solid #cbd5e0",
-                  cursor: currentPage === 1 ? "not-allowed" : "pointer",
-                  opacity: currentPage === 1 ? 0.5 : 1,
-                }}
-              >
-                ← ก่อนหน้า
-              </button>
-
-              <span style={{ fontWeight: "bold", color: "#4a5568" }}>
-                หน้า {currentPage} / {totalPages}
-              </span>
-
-              <button
-                disabled={currentPage === totalPages}
-                onClick={() => setCurrentPage((prev) => prev + 1)}
-                style={{
-                  padding: "0.5rem 1rem",
-                  borderRadius: "4px",
-                  border: "1px solid #cbd5e0",
-                  cursor:
-                    currentPage === totalPages ? "not-allowed" : "pointer",
-                  opacity: currentPage === totalPages ? 0.5 : 1,
-                }}
-              >
-                ถัดไป →
-              </button>
-            </div>
-          )}
+          <PostSkeleton />
+          <PostSkeleton />
+          <PostSkeleton />
         </>
+      ) : (
+        sortedPosts.map((post) => <PostCard key={post.id} post={post} />)
       )}
     </div>
   );

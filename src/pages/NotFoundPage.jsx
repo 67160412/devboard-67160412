@@ -2,25 +2,47 @@ import { Link } from "react-router-dom";
 
 function NotFoundPage() {
   return (
-    <div style={{ textAlign: "center", padding: "5rem 1rem" }}>
-      <h1 style={{ fontSize: "4rem", color: "#1e40af", margin: "0 0 1rem" }}>
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: "4rem 2rem",
+        textAlign: "center",
+      }}
+    >
+      <h1
+        style={{
+          fontSize: "6rem",
+          color: "#cbd5e0",
+          margin: "0 0 1rem 0",
+          lineHeight: "1",
+        }}
+      >
         404
       </h1>
-      <p style={{ fontSize: "1.2rem", color: "#4a5568", marginBottom: "2rem" }}>
-        ไม่พบหน้าที่คุณต้องการ
+      <h2 style={{ color: "#2d3748", marginBottom: "0.5rem" }}>
+        โอ๊ะโอ! ไม่พบหน้าที่คุณค้นหา
+      </h2>
+      <p style={{ color: "#718096", marginBottom: "2rem" }}>
+        ดูเหมือนว่า URL นี้จะไม่มีอยู่จริง หรืออาจจะถูกลบไปแล้วครับ
       </p>
+
+      {/* ปุ่มพากลับหน้าหลักโดยใช้ Link ของ react-router-dom */}
       <Link
         to="/"
         style={{
           background: "#1e40af",
           color: "white",
-          padding: "0.75rem 1.5rem",
           textDecoration: "none",
-          borderRadius: "6px",
+          padding: "0.75rem 1.5rem",
+          borderRadius: "8px",
           fontWeight: "bold",
+          fontSize: "1rem",
         }}
       >
-        ← กลับหน้าหลัก
+        🏠 กลับสู่หน้าหลัก
       </Link>
     </div>
   );

@@ -1,7 +1,18 @@
 function PostCount({ count }) {
   return (
-    <div style={{ marginBottom: "1rem", color: "#4a5568", fontSize: "0.9rem" }}>
-      โพสต์ทั้งหมด: <strong>{count}</strong> รายการ
+    <div
+      style={{
+        background: "#ebf8ff",
+        color: "#2b6cb0",
+        padding: "0.5rem 1rem",
+        borderRadius: "20px",
+        display: "inline-block",
+        fontWeight: "bold",
+        marginBottom: "1rem",
+        fontSize: "0.9rem",
+      }}
+    >
+      📝 จำนวนโพสต์ทั้งหมด: {count} โพสต์
     </div>
   );
 }

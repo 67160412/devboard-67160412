@@ -13,9 +13,9 @@ function AddPostForm({ onAddPost }) {
     setBody("");
   }
 
-  // คำนวณตัวอักษรที่เหลือ
+  // 🌟 2.1 Challenge: คำนวณตัวอักษรที่เหลือและเงื่อนไขสี
   const charsLeft = 100 - title.length;
-  // ถ้าเหลือน้อยกว่าหรือเท่ากับ 10 ตัวอักษร ให้ใช้สีแดง
+  // ถ้าเหลือน้อยกว่าหรือเท่ากับ 10 ตัว ให้ใช้สีแดง (#e53e3e) ถ้าปกติใช้สีเทา (#718096)
   const counterColor = charsLeft <= 10 ? "#e53e3e" : "#718096";
 
   return (
@@ -37,12 +37,12 @@ function AddPostForm({ onAddPost }) {
         type="text"
         placeholder="หัวข้อโพสต์"
         value={title}
-        maxLength={100} // บังคับไม่ให้พิมพ์เกิน 100 ตัว
+        maxLength={100} // 🌟 2.1 Challenge: ใช้ HTML ควบคุมไม่ให้พิมพ์เกิน 100 ตัว
         onChange={(e) => setTitle(e.target.value)}
         style={{
           width: "100%",
           padding: "0.5rem",
-          marginBottom: "0.25rem", // ลดระยะห่างลงนิดหน่อยเพื่อให้ชิดตัวนับ
+          marginBottom: "0.25rem", // ลดขอบล่างนิดนึงเพื่อให้ชิดกับตัวนับอักษร
           border: "1px solid #cbd5e0",
           borderRadius: "4px",
           fontSize: "1rem",
@@ -50,13 +50,13 @@ function AddPostForm({ onAddPost }) {
         }}
       />
 
-      {/* 🌟 Challenge 1: ตัวนับตัวอักษร */}
+      {/* 🌟 2.1 Challenge: แสดงตัวนับแบบ Real-time */}
       <div
         style={{
           textAlign: "right",
           fontSize: "0.8rem",
-          color: counterColor,
-          marginBottom: "0.5rem",
+          color: counterColor, // ใช้ตัวแปรสีที่เราคำนวณไว้
+          marginBottom: "0.75rem",
         }}
       >
         {title.length}/100

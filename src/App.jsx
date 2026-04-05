@@ -5,7 +5,8 @@ import HomePage from "./pages/HomePage";
 import PostDetailPage from "./pages/PostDetailPage";
 import ProfilePage from "./pages/ProfilePage";
 import FavoritesPage from "./pages/FavoritesPage";
-// 🌟 4.1 Challenge: นำเข้าหน้า 404
+
+// Challenge 4.1: นำเข้า Component สำหรับหน้า 404
 import NotFoundPage from "./pages/NotFoundPage";
 
 function App() {
@@ -15,11 +16,13 @@ function App() {
         <Navbar />
         <Routes>
           <Route path="/" element={<HomePage />} />
+          <Route 
+          path="/home" element={<HomePage />} />
           <Route path="/posts/:id" element={<PostDetailPage />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/favorites" element={<FavoritesPage />} />
 
-          {/* 🌟 4.1 Challenge: ใช้ path="*" เพื่อดักจับ URL ที่ไม่ตรงกับข้างบนเลย */}
+          {/* Challenge 4.1: เส้นทางครอบจักรวาลสำหรับดักจับ URL ที่ไม่มีอยู่จริง */}
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </BrowserRouter>

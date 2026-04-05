@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import PostCard from "./PostCard";
+// Challenge 1.1: นำเข้า PostCount
 import PostCount from "./PostCount";
+// Challenge 1.3: นำเข้า PostSkeleton
 import PostSkeleton from "./PostSkeleton";
 
 function PostList() {
@@ -8,9 +10,14 @@ function PostList() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // Challenge 2.2: State สำหรับควบคุมการเรียงลำดับ (desc/asc)
   const [sortOrder, setSortOrder] = useState("desc");
 
-  // 🌟 ฟังก์ชันนี้ทำหน้าที่ดึง API ล้วนๆ (เปลี่ยน State เฉพาะตอนได้ข้อมูลกลับมาแล้ว ซึ่งทำได้ปกติ)
+  // Challenge 3.2: State สำหรับควบคุมระบบแบ่งหน้า (Pagination)
+  const [currentPage, setCurrentPage] = useState(1);
+  const postsPerPage = 10;
+
+  // Challenge 3.1: แยกฟังก์ชันสำหรับดึงข้อมูล เพื่อให้เรียกซ้ำได้
   const fetchPosts = () => {
     fetch("https://jsonplaceholder.typicode.com/posts")
       .then((res) => {
@@ -18,7 +25,8 @@ function PostList() {
         return res.json();
       })
       .then((data) => {
-        setPosts(data.slice(0, 20));
+        // Challenge 3.2: เก็บข้อมูลทั้งหมดโดยไม่ต้องหั่น เพื่อให้มีข้อมูลพอสำหรับแบ่งหน้า
+        setPosts(data.slice(0, 100));
         setLoading(false);
       })
       .catch((err) => {
@@ -27,18 +35,20 @@ function PostList() {
       });
   };
 
-  // โหลดครั้งแรกตอนเปิดเว็บ (ไม่มีการตั้งค่า State ซ้ำซ้อนให้ Linter บ่นแล้ว)
   useEffect(() => {
     fetchPosts();
   }, []);
 
-  // 🌟 ฟังก์ชันใหม่สำหรับ "ปุ่มกด" โดยเฉพาะ (การเปลี่ยน State ทันทีใน Event เป็นสิ่งที่ถูกต้องตามหลัก React)
+  // Challenge 3.1: ฟังก์ชันสำหรับปุ่มโหลดใหม่โดยเฉพาะ
   const handleManualRefresh = () => {
-    setLoading(true); // โชว์ Skeleton หน้าโหลด
-    setError(null); // เคลียร์ Error เก่า
-    fetchPosts(); // สั่งดึงข้อมูลใหม่
+    setLoading(true);
+    setError(null);
+    // Challenge 3.2: เมื่อโหลดข้อมูลใหม่ ให้รีเซ็ตกลับมาที่หน้าแรกเสมอ
+    setCurrentPage(1);
+    fetchPosts();
   };
 
+  // Challenge 2.2: คัดลอกและจัดเรียงข้อมูลโพสต์ตามเงื่อนไข
   const sortedPosts = [...posts].sort((a, b) => {
     if (sortOrder === "desc") {
       return b.id - a.id;
@@ -46,6 +56,15 @@ function PostList() {
       return a.id - b.id;
     }
   });
+
+  // Challenge 3.2: คำนวณช่วงข้อมูลที่จะนำมาแสดงในแต่ละหน้า (ตัดจากที่จัดเรียงแล้ว)
+  const indexOfLastPost = currentPage * postsPerPage;
+  const indexOfFirstPost = indexOfLastPost - postsPerPage;
+  const currentPosts = sortedPosts.slice(indexOfFirstPost, indexOfLastPost);
+
+  // Challenge 3.2: ฟังก์ชันสำหรับเปลี่ยนหน้า (ก่อนหน้า / ถัดไป)
+  const nextPage = () => setCurrentPage((prev) => prev + 1);
+  const prevPage = () => setCurrentPage((prev) => prev - 1);
 
   if (error) {
     return (
@@ -67,10 +86,13 @@ function PostList() {
           marginBottom: "1rem",
         }}
       >
-        <h2 style={{ margin: 0, color: "#2d3748" }}>โพสต์ล่าสุด</h2>
+        {/* Challenge 3.2: อัปเดตหัวข้อให้แสดงหมายเลขหน้าปัจจุบัน */}
+        <h2 style={{ margin: 0, color: "#dddfe4" }}>
+          โพสต์ล่าสุด (หน้า {currentPage})
+        </h2>
 
         <div style={{ display: "flex", gap: "0.5rem" }}>
-          {/* 🌟 3.1 Challenge: เปลี่ยนมาเรียกใช้ฟังก์ชัน handleManualRefresh แทน */}
+          {/* Challenge 3.1: ปุ่มโหลดข้อมูลใหม่ */}
           <button
             onClick={handleManualRefresh}
             style={{
@@ -87,6 +109,7 @@ function PostList() {
             🔄 โหลดใหม่
           </button>
 
+          {/* Challenge 2.2: ปุ่มสลับการจัดเรียงโพสต์ */}
           <button
             onClick={() => setSortOrder(sortOrder === "desc" ? "asc" : "desc")}
             style={{
@@ -104,8 +127,10 @@ function PostList() {
         </div>
       </div>
 
+      {/* Challenge 1.1: แสดงจำนวนโพสต์ทั้งหมดเมื่อข้อมูลโหลดเสร็จ */}
       {!loading && <PostCount count={posts.length} />}
 
+      {/* Challenge 1.3: แสดงกล่อง Skeleton ระหว่างที่ loading เป็น true */}
       {loading ? (
         <>
           <PostSkeleton />
@@ -113,7 +138,64 @@ function PostList() {
           <PostSkeleton />
         </>
       ) : (
-        sortedPosts.map((post) => <PostCard key={post.id} post={post} />)
+        // Challenge 3.2: เปลี่ยนมาใช้ currentPosts เพื่อแสดงข้อมูลเฉพาะหน้าปัจจุบัน
+        currentPosts.map((post) => <PostCard key={post.id} post={post} />)
+      )}
+
+      {/* Challenge 3.2: ชุดปุ่มควบคุมการแบ่งหน้า (Pagination Controls) */}
+      {!loading && posts.length > 0 && (
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            gap: "1rem",
+            marginTop: "1.5rem",
+          }}
+        >
+          <button
+            onClick={prevPage}
+            disabled={currentPage === 1}
+            style={{
+              padding: "0.5rem 1rem",
+              borderRadius: "4px",
+              border: "1px solid #cbd5e0",
+              background: currentPage === 1 ? "#edf2f7" : "#fff",
+              cursor: currentPage === 1 ? "not-allowed" : "pointer",
+              color: currentPage === 1 ? "#a0aec0" : "#4a5568",
+              fontWeight: "bold",
+            }}
+          >
+            ◀ ก่อนหน้า
+          </button>
+
+          <span
+            style={{
+              display: "flex",
+              alignItems: "center",
+              color: "#d6dde7",
+              fontWeight: "bold",
+            }}
+          >
+            หน้า {currentPage}
+          </span>
+
+          <button
+            onClick={nextPage}
+            disabled={indexOfLastPost >= posts.length}
+            style={{
+              padding: "0.5rem 1rem",
+              borderRadius: "4px",
+              border: "1px solid #cbd5e0",
+              background: indexOfLastPost >= posts.length ? "#edf2f7" : "#fff",
+              cursor:
+                indexOfLastPost >= posts.length ? "not-allowed" : "pointer",
+              color: indexOfLastPost >= posts.length ? "#a0aec0" : "#4a5568",
+              fontWeight: "bold",
+            }}
+          >
+            ถัดไป ▶
+          </button>
+        </div>
       )}
     </div>
   );

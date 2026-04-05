@@ -42,7 +42,7 @@ function NotFoundPage() {
           fontSize: "1rem",
         }}
       >
-        🏠 กลับสู่หน้าหลัก
+        กลับสู่หน้าหลัก
       </Link>
     </div>
   );

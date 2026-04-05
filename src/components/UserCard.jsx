@@ -1,7 +1,7 @@
 function UserCard({ name, email }) {
   const initials = name.charAt(0).toUpperCase();
 
-  // Logic สุ่มสี: แปลงตัวอักษรแรกเป็นรหัสตัวเลข แล้วหารเอาเศษด้วยชุดสีที่มี
+  // Challenge 1.2: อัลกอริทึมคำนวณรหัสสีจากตัวอักษรแรก
   const charCode = name.charCodeAt(0);
   const colors = ["#1e40af", "#047857", "#6b21a8", "#b91c1c", "#d97706"];
   const avatarColor = colors[charCode % colors.length];
@@ -19,11 +19,12 @@ function UserCard({ name, email }) {
         background: "white",
       }}
     >
+      {/* Challenge 1.2: นำสีที่คำนวณได้มาใช้งานที่ background */}
       <div
         style={{
           width: "40px",
           height: "40px",
-          background: avatarColor, // 🌟 ใช้สีที่คำนวณได้
+          background: avatarColor,
           color: "white",
           borderRadius: "50%",
           display: "flex",
